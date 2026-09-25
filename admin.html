@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="id" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Admin - Kelola Biodata Profil</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        emerald: {
+                            50: '#ecfdf5',
+                            100: '#d1fae5',
+                            200: '#a7f3d0',
+                            300: '#6ee7b7',
+                            400: '#34d399',
+                            500: '#10b981',
+                            600: '#059669',
+                            700: '#047857',
+                            800: '#065f46',
+                            900: '#064e3b',
+                            950: '#022c22',
+                        },
+                        teal: {
+                            50: '#f0fdfa',
+                            100: '#ccfbf1',
+                            200: '#99f6e4',
+                            300: '#5eead4',
+                            400: '#2dd4bf',
+                            500: '#14b8a6',
+                            600: '#0d9488',
+                            700: '#0f766e',
+                            800: '#115e59',
+                            900: '#134e4a',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Google Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Alpine.js Framework -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.5/dist/cdn.min.js"></script>
+
+    <style>
+        [x-cloak] { display: none !important; }
+        
+        .bg-pattern {
+            background-color: #f8fafc;
+            background-image: radial-gradient(#059669 0.5px, transparent 0.5px), radial-gradient(#059669 0.5px, #f8fafc 0.5px);
+            background-size: 20px 20px;
+            background-position: 0 0, 10px 10px;
+        }
+
+        .dark .bg-pattern {
+            background-color: #022c22;
+            background-image: radial-gradient(#10b981 0.5px, transparent 0.5px), radial-gradient(#10b981 0.5px, #022c22 0.5px);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.05);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #10b981;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+
+<body x-data="adminApp()" x-init="initAdmin()" :class="{ 'dark bg-slate-950 text-slate-100': darkMode, 'bg-slate-50 text-slate-800 bg-pattern': !darkMode }" class="min-h-full font-sans antialiased transition-colors duration-300">
+
+    <!-- HEADER BAR -->
+    <header class="sticky top-0 z-40 w-full backdrop-blur-md bg-white/90 dark:bg-slate-900/90 border-b border-emerald-100 dark:border-emerald-900/50 shadow-sm transition-colors">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                
+                <!-- Brand Title -->
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-500 flex items-center justify-center text-white shadow-md shadow-emerald-500/20">
+                        <i class="fa-solid fa-user-gear text-lg"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <h1 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white leading-tight">Admin Portal</h1>
+                            <span class="px-2 py-0.5 text-[10px] font-extrabold uppercase bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 rounded-md border border-emerald-300/40">V2.0</span>
+                        </div>
+                        <p class="text-xs text-emerald-600 dark:text-emerald-400 font-medium">Kelola Biodata Profil Realtime</p>
+                    </div>
+                </div>
+
+                <!-- Navigation Controls -->
+                <div class="flex items-center space-x-2">
+                    
+                    <!-- View Live Site Button -->
+                    <a href="index.html" target="_blank" class="px-3.5 py-2 text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-emerald-50 hover:text-emerald-700 dark:hover:bg-slate-700 rounded-xl transition flex items-center gap-1.5 border border-slate-200/80 dark:border-slate-700">
+                        <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                        <span class="hidden sm:inline">Lihat Web Utama</span>
+                    </a>
+
+                    <!-- Cloud Refresh Button -->
+                    <button @click="fetchFromCloud()" :disabled="syncing" class="p-2 text-xs font-semibold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/80 dark:text-emerald-300 hover:bg-emerald-200 dark:hover:bg-emerald-900 rounded-xl transition flex items-center gap-1" title="Sinkronkan dari Cloud">
+                        <i class="fa-solid fa-rotate p-1" :class="{ 'animate-spin': syncing }"></i>
+                    </button>
+
+                    <!-- Dark Mode Toggle -->
+                    <button @click="darkMode = !darkMode" class="p-2.5 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors" title="Toggle Theme">
+                        <i class="fa-solid" :class="darkMode ? 'fa-sun text-amber-400' : 'fa-moon text-slate-600'"></i>
+                    </button>
+
+                    <!-- Lock / Logout Button -->
+                    <button x-show="authenticated" @click="logout()" class="px-3 py-2 text-xs font-bold bg-rose-50 text-rose-600 hover:bg-rose-100 dark:bg-rose-950/50 dark:text-rose-400 dark:hover:bg-rose-900/60 rounded-xl transition flex items-center gap-1.5 border border-rose-200 dark:border-rose-900/50">
+                        <i class="fa-solid fa-lock"></i>
+                        <span class="hidden sm:inline">Kunci Panel</span>
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </header>
+
+    <!-- PIN LOCK SCREEN OVERLAY -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <div x-show="!authenticated" x-cloak class="min-h-[75vh] flex items-center justify-center p-4">
+            <div class="bg-white dark:bg-slate-900 rounded-3xl p-8 sm:p-10 shadow-2xl border border-slate-200/80 dark:border-slate-800 max-w-md w-full text-center space-y-6 relative overflow-hidden">
+                
+                <!-- Decor Orbs -->
+                <div class="absolute -top-12 -right-12 w-32 h-32 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none"></div>
+                <div class="absolute -bottom-12 -left-12 w-32 h-32 bg-teal-500/10 rounded-full blur-2xl pointer-events-none"></div>
+
+                <div class="relative z-10 space-y-6">
+                    <div class="w-20 h-20 rounded-3xl bg-gradient-to-tr from-emerald-600 to-teal-500 text-white flex items-center justify-center mx-auto text-3xl shadow-lg shadow-emerald-500/30">
+                        <i class="fa-solid fa-shield-halved"></i>
+                    </div>
+
+                    <div>
+                        <h2 class="text-2xl font-black text-slate-900 dark:text-white">Akses Admin Terkunci</h2>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1.5">Masukkan PIN Keamanan untuk membuka form pengubahan biodata Rezky Putri Aulia.</p>
+                    </div>
+
+                    <form @submit.prevent="verifyPin()" class="space-y-4">
+                        <div class="relative">
+                            <input :type="showPinInput ? 'text' : 'password'" x-model="pinAttempt" placeholder="• • • •" maxlength="12" class="w-full text-center tracking-widest text-2xl font-mono px-4 py-3.5 rounded-2xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:outline-none transition shadow-inner" autofocus />
+                            <button type="button" @click="showPinInput = !showPinInput" class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-sm">
+                                <i class="fa-solid" :class="showPinInput ? 'fa-eye-slash' : 'fa-eye'"></i>
+                            </button>
+                        </div>
+
+                        <p x-show="pinError" x-cloak class="text-xs font-bold text-rose-500 animate-bounce flex items-center justify-center gap-1">
+                            <i class="fa-solid fa-circle-exclamation"></i> PIN Salah! Coba lagi.
+                        </p>
+
+                        <button type="submit" class="w-full py-3.5 px-4 bg-emerald-600 hover:bg-emerald-700 active:scale-[0.99] text-white font-bold rounded-2xl shadow-lg shadow-emerald-600/30 transition flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-key text-emerald-200"></i> Buka Akses Panel Admin
+                        </button>
+                    </form>
+
+                    <p class="text-[11px] text-slate-400 dark:text-slate-500 italic">
+                        Default PIN: <span class="font-mono font-bold text-emerald-600 dark:text-emerald-400">1234</span>
+                    </p>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- UNLOCKED MAIN DASHBOARD -->
+        <div x-show="authenticated" x-cloak class="space-y-8">
+            
+            <!-- TOP STATUS SUMMARY BAR -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                
+                <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 shadow-md border border-slate-200/80 dark:border-slate-800 flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-xl bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xl shrink-0">
+                        <i class="fa-solid fa-user-check"></i>
+                    </div>
+                    <div class="min-w-0">
+                        <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Pemilik Profil</p>
+                        <h3 class="text-sm font-extrabold text-slate-900 dark:text-white truncate" x-text="data.nama || 'Rezky putri aulia'"></h3>
+                        <p class="text-[11px] font-mono text-emerald-600 dark:text-emerald-400" x-text="'NIM: ' + (data.nim || '-')"></p>
+                    </div>
+                </div>
+
+                <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 shadow-md border border-slate-200/80 dark:border-slate-800 flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-xl bg-teal-100 dark:bg-teal-950 text-teal-600 dark:text-teal-400 flex items-center justify-center text-xl shrink-0">
+                        <i class="fa-solid fa-cloud-arrow-up"></i>
+                    </div>
+                    <div class="min-w-0">
+                        <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Status Cloud</p>
+                        <div class="flex items-center gap-1.5 mt-0.5">
+                            <span class="w-2.5 h-2.5 rounded-full" :class="syncing ? 'bg-amber-400 animate-ping' : 'bg-emerald-500'"></span>
+                            <span class="text-xs font-bold text-slate-800 dark:text-slate-200" x-text="syncing ? 'Menyinkronkan...' : 'Terhubung ke JSONBin'"></span>
+                        </div>
+                        <p class="text-[10px] text-slate-400 truncate mt-0.5 font-mono" x-text="'Bin ID: ' + jsonbinBinId.substring(0,8) + '...'"></p>
+                    </div>
+                </div>
+
+                <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 shadow-md border border-slate-200/80 dark:border-slate-800 flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-xl bg-slate-900 dark:bg-slate-800 text-white flex items-center justify-center text-xl shrink-0">
+                        <i class="fa-brands fa-github"></i>
+                    </div>
+                    <div class="min-w-0">
+                        <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">GitHub Uploader</p>
+                        <h3 class="text-xs font-bold font-mono text-slate-800 dark:text-slate-200 truncate" x-text="githubRepo"></h3>
+                        <p class="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold mt-0.5">Direct Storage Ready</p>
+                    </div>
+                </div>
+
+                <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 shadow-md border border-slate-200/80 dark:border-slate-800 flex items-center justify-between">
+                    <div>
+                        <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Aksi Cepat</p>
+                        <p class="text-xs font-semibold text-slate-700 dark:text-slate-300 mt-0.5">Keamanan PIN</p>
+                    </div>
+                    <button @click="openPinModal = true" class="px-3 py-2 text-xs font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 hover:bg-emerald-200 rounded-xl transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-key"></i> Ubah PIN
+                    </button>
+                </div>
+
+            </div>
+
+            <!-- SECTION 1: GITHUB REST API PHOTO UPLOADER CARD -->
+            <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 shadow-xl border border-slate-200/80 dark:border-slate-800 space-y-6">
+                
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-800 pb-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-slate-900 to-slate-700 text-white flex items-center justify-center text-xl shadow-md">
+                            <i class="fa-brands fa-github"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-base font-bold text-slate-900 dark:text-white">GitHub Image REST API Uploader</h3>
+                            <p class="text-xs text-slate-500 dark:text-slate-400">Unggah foto ke repositori <span class="font-mono text-emerald-600 font-bold" x-text="githubRepo"></span> dan perbarui URL otomatis.</p>
+                        </div>
+                    </div>
+                    <span class="self-start sm:self-center px-3 py-1 bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 rounded-full text-[10px] font-extrabold uppercase tracking-wider border border-emerald-300/30">Auto Cloud Sync</span>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
+                    
+                    <!-- Photo Preview Frame -->
+                    <div class="flex flex-col items-center space-y-2">
+                        <div class="w-36 h-48 sm:w-40 sm:h-52 rounded-2xl overflow-hidden bg-slate-100 dark:bg-slate-800 border-4 border-emerald-500/30 shadow-xl relative group">
+                            <template x-if="data.foto_url">
+                                <img :src="data.foto_url" @error="imageLoadError = true" class="w-full h-full object-cover transition duration-300 group-hover:scale-105" />
+                            </template>
+                            <template x-if="!data.foto_url || imageLoadError">
+                                <div class="w-full h-full flex flex-col items-center justify-center text-slate-400 p-4 text-center">
+                                    <i class="fa-solid fa-user-tie text-4xl mb-2 text-slate-300 dark:text-slate-600"></i>
+                                    <span class="text-[10px] font-bold uppercase">Tidak ada foto</span>
+                                </div>
+                            </template>
+
+                            <!-- Overlay Spinner during Upload -->
+                            <div x-show="uploading" x-cloak class="absolute inset-0 bg-slate-950/80 backdrop-blur-sm flex flex-col items-center justify-center text-white text-xs font-semibold gap-3 p-4 text-center">
+                                <i class="fa-solid fa-spinner animate-spin text-3xl text-emerald-400"></i>
+                                <span>Mengunggah ke GitHub...</span>
+                            </div>
+                        </div>
+                        <span class="text-[11px] text-slate-500 dark:text-slate-400 font-medium">Pratinjau Pas Foto Saat Ini</span>
+                    </div>
+
+                    <!-- File Uploader Inputs -->
+                    <div class="md:col-span-2 space-y-4">
+                        
+                        <!-- Drag and Drop Box -->
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">Pilih File Pas Foto Baru (JPG, PNG, WEBP - Max 5MB)</label>
+                            <label class="cursor-pointer border-2 border-dashed border-emerald-400 hover:border-emerald-600 dark:border-emerald-700 dark:hover:border-emerald-500 bg-emerald-50/40 dark:bg-emerald-950/20 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 p-6 rounded-2xl flex flex-col sm:flex-row items-center justify-center gap-4 transition group">
+                                <div class="w-12 h-12 rounded-xl bg-white dark:bg-slate-800 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-2xl shadow-md group-hover:scale-110 transition-transform">
+                                    <i class="fa-solid fa-cloud-arrow-up"></i>
+                                </div>
+                                <div class="text-center sm:text-left">
+                                    <p class="text-xs font-extrabold text-slate-800 dark:text-slate-100">Klik di sini untuk menelusuri file foto</p>
+                                    <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">Otomatis di-commit ke repositori GitHub & disimpan ke JSONBin</p>
+                                </div>
+                                <input type="file" accept="image/*" @change="uploadToGitHub($event)" class="hidden" :disabled="uploading" />
+                            </label>
+                        </div>
+
+                        <!-- Manual Image URL Override -->
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">Atau Masukkan Direct URL Foto Custom Manual</label>
+                            <div class="relative">
+                                <input type="text" x-model="data.foto_url" placeholder="https://raw.githubusercontent.com/..." class="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white text-xs font-mono focus:ring-2 focus:ring-emerald-500 focus:outline-none" />
+                                <button type="button" @click="imageLoadError = false" class="absolute right-2 top-1/2 -translate-y-1/2 px-3 py-1 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 text-slate-700 dark:text-slate-200 text-[10px] font-bold rounded-lg transition">Tes URL</button>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- SECTION 2: BIODATA FORM EDITOR CARD -->
+            <form @submit.prevent="saveAllData()" class="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 shadow-xl border border-slate-200/80 dark:border-slate-800 space-y-6">
+                
+                <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-2xl bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-pen-to-square"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-base font-bold text-slate-900 dark:text-white">Formulir Data Biodata Lengkap</h3>
+                            <p class="text-xs text-slate-500 dark:text-slate-400">Edit informasi identitas, akademik, kontak, dan wali</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
+                    
+                    <!-- Nama Lengkap -->
+                    <div class="sm:col-span-2">
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">Nama Lengkap *</label>
+                        <input type="text" x-model="data.nama" required class="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white text-sm font-semibold focus:ring-2 focus:ring-emerald-500 focus:outline-none" />
+                    </div>
+
+                    <!-- NIM -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">NIM / Nomor Induk *</label>
+                        <input type="text" x-model="data.nim" required class="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white text-sm font-mono font-bold focus:ring-2 focus:ring-emerald-500 focus:outline-none" />
+                    </div>
+
+                    <!-- NIK -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">NIK (16 Digit KTP)</label>
+                        <input type="text" x-model="data.nik" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white text-sm font-mono focus:ring-2 focus:ring-emerald-500 focus:outline-none" />
+                    </div>
+
+                    <!-- Tempat, Tanggal Lahir -->
+                    <div class="sm:col-span-2">
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">Tempat, Tanggal Lahir</label>
+                        <input type="text" x-model="data.ttl" placeholder="Contoh: Takalar, 03 Mei 2007" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none" />
+                    </div>
+
+                    <!-- Jenis Kelamin -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">Jenis Kelamin</label>
+                        <select x-model="data.jenis_kelamin" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                            <option value="Perempuan">Perempuan</option>
+                            <option value="Laki-laki">Laki-laki</option>
+                        </select>
+                    </div>
+
+                    <!-- Agama -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">Agama</label>
+                        <input type="text" x-model="data.agama" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none" />
+                    </div>
+
+                    <!-- Program Studi -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">Program Studi</label>
+                        <input type="text" x-model="data.prodi" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none" />
+                    </div>
+
+                    <!-- Fakultas -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">Fakultas / Kampus</label>
+                        <input type="text" x-model="data.fakultas" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none" />
+                    </div>
+
+                    <!-- Angkatan -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">Tahun Angkatan</label>
+                        <input type="text" x-model="data.angkatan" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white text-sm font-mono focus:ring-2 focus:ring-emerald-500 focus:outline-none" />
+                    </div>
+
+                    <!-- No HP -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">No. HP / WhatsApp</label>
+                        <input type="text" x-model="data.no_hp" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white text-sm font-mono focus:ring-2 focus:ring-emerald-500 focus:outline-none" />
+                    </div>
+
+                    <!-- Email -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">Email Pribadi</label>
+                        <input type="email" x-model="data.email" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none" />
+                    </div>
+
+                    <!-- Nama Ayah -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">Nama Ayah</label>
+                        <input type="text" x-model="data.nama_ayah" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none" />
+                    </div>
+
+                    <!-- Nama Ibu -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">Nama Ibu</label>
+                        <input type="text" x-model="data.nama_ibu" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none" />
+                    </div>
+
+                    <!-- Alamat Lengkap -->
+                    <div class="sm:col-span-2 md:col-span-3">
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">Alamat Domisili Lengkap</label>
+                        <textarea x-model="data.alamat" rows="2" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none"></textarea>
+                    </div>
+
+                    <!-- Motto / Catatan -->
+                    <div class="sm:col-span-2 md:col-span-3">
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">Motto / Kutipan Profil</label>
+                        <textarea x-model="data.motto" rows="2" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none"></textarea>
+                    </div>
+
+                </div>
+
+                <!-- Action Controls Bar -->
+                <div class="pt-6 flex flex-wrap items-center justify-between gap-4 border-t border-slate-100 dark:border-slate-800">
+                    <button type="button" @click="resetDefaults()" class="px-4 py-2.5 text-xs font-semibold text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-xl transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-rotate-left"></i> Reset ke Standar Awal
+                    </button>
+
+                    <div class="flex items-center gap-3">
+                        <button type="button" @click="exportBackupJSON()" class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-bold text-xs rounded-xl transition flex items-center gap-1.5">
+                            <i class="fa-solid fa-download"></i> Download Backup JSON
+                        </button>
+
+                        <button type="submit" :disabled="syncing" class="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 active:scale-[0.99] text-white font-extrabold text-sm rounded-xl shadow-lg shadow-emerald-600/30 transition flex items-center gap-2">
+                            <i class="fa-solid fa-cloud-arrow-up" :class="{ 'animate-spin': syncing }"></i>
+                            <span x-text="syncing ? 'Menyimpan...' : 'Simpan & Sync ke Cloud'"></span>
+                        </button>
+                    </div>
+                </div>
+
+            </form>
+
+        </div>
+
+    </main>
+
+    <!-- MODAL CHANGE PIN -->
+    <div x-show="openPinModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm">
+        <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 shadow-2xl max-w-sm w-full border border-slate-200 dark:border-slate-800 space-y-5 relative">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-2xl bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-lg">
+                    <i class="fa-solid fa-key"></i>
+                </div>
+                <div>
+                    <h3 class="text-base font-bold text-slate-900 dark:text-white">Ubah PIN Keamanan</h3>
+                    <p class="text-xs text-slate-500">Akan tersimpan otomatis ke Cloud</p>
+                </div>
+            </div>
+
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">PIN Baru (Min. 4 Karakter)</label>
+                    <input type="password" x-model="newPinInput" placeholder="Masukkan PIN baru" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white text-sm font-mono focus:ring-2 focus:ring-emerald-500 focus:outline-none" />
+                </div>
+            </div>
+
+            <div class="flex justify-end gap-2 pt-2">
+                <button type="button" @click="openPinModal = false" class="px-4 py-2 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl">Batal</button>
+                <button type="button" @click="saveNewPin()" class="px-4 py-2 text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl shadow">Simpan PIN Baru</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST NOTIFICATION BANNER -->
+    <div class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none">
+        <div x-show="toast.show" x-cloak x-transition:enter="transition ease-out duration-300 transform" x-transition:enter-start="opacity-0 translate-y-4" x-transition:enter-end="opacity-100 translate-y-0" x-transition:leave="transition ease-in duration-200 transform" x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 translate-y-4" :class="{ 'bg-emerald-600 text-white': toast.type === 'success', 'bg-rose-600 text-white': toast.type === 'error', 'bg-sky-600 text-white': toast.type === 'info' }" class="px-5 py-3.5 rounded-2xl shadow-2xl flex items-center gap-3 text-xs sm:text-sm font-bold pointer-events-auto border border-white/20">
+            <i class="fa-solid text-lg" :class="{ 'fa-circle-check': toast.type === 'success', 'fa-circle-xmark': toast.type === 'error', 'fa-circle-info': toast.type === 'info' }"></i>
+            <span x-text="toast.message"></span>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT APP LOGIC -->
+    <script>
+        function adminApp() {
+            return {
+                darkMode: false,
+                authenticated: false,
+                pinAttempt: '',
+                showPinInput: false,
+                pinError: false,
+                openPinModal: false,
+                newPinInput: '',
+                
+                syncing: false,
+                uploading: false,
+                imageLoadError: false,
+
+                // Notification Toast State
+                toast: {
+                    show: false,
+                    message: '',
+                    type: 'success'
+                },
+
+                // Configured JSONBin Credentials
+                jsonbinBinId: '6ab6a285ffd5d160532e70d6',
+                jsonbinMasterKey: '$2a$10$wGWaV.o5hAXIdAaG15anoeZwwzWewrvSjFCL//FVbtxsOCs.MRvYW',
+
+                // Configured GitHub Credentials
+                githubToken: 'ghp_d6v62KR1NyXZ06h9GFH2F2M2BMgObs247k8D',
+                githubRepo: 'TandiLayuk/Ekki',
+                githubBranch: 'main',
+
+                // Complete Default Data Set
+                data: {
+                    pin: '1234',
+                    nama: 'Rezky putri aulia',
+                    nim: '202601001',
+                    nik: '7305015305070001',
+                    ttl: 'Takalar, 03 Mei 2007',
+                    jenis_kelamin: 'Perempuan',
+                    agama: 'Islam',
+                    alamat: 'Takalar, Sulawesi Selatan',
+                    prodi: 'D3 Rekam Medis dan Informasi Kesehatan',
+                    fakultas: 'STIKES Panakkukang Makassar',
+                    angkatan: '2026',
+                    no_hp: '081234567890',
+                    email: 'rezkyputri@example.com',
+                    foto_url: 'https://raw.githubusercontent.com/TandiLayuk/Ekki/main/uploads/profile.jpg',
+                    nama_ayah: 'Syamsuddin',
+                    nama_ibu: 'Ibu Rezky',
+                    motto: 'Terus belajar, mengabdi untuk kesehatan masyarakat, dan meraih cita-cita.',
+                    gh_token: 'ghp_d6v62KR1NyXZ06h9GFH2F2M2BMgObs247k8D',
+                    gh_repo: 'TandiLayuk/Ekki'
+                },
+
+                // INITIALIZATION
+                async initAdmin() {
+                    // Check Saved Theme
+                    if (localStorage.getItem('admin_darkmode') === 'true') {
+                        this.darkMode = true;
+                    }
+
+                    // Check Session Auth
+                    if (sessionStorage.getItem('admin_authenticated') === 'true') {
+                        this.authenticated = true;
+                    }
+
+                    // Watch Dark Mode
+                    this.$watch('darkMode', val => localStorage.setItem('admin_darkmode', val));
+
+                    // Load from Local Storage Cache
+                    const cached = localStorage.getItem('biodata_profile_data');
+                    if (cached) {
+                        try {
+                            const parsed = JSON.parse(cached);
+                            this.data = { ...this.data, ...parsed };
+                        } catch (e) {
+                            console.warn('LocalStorage format error:', e);
+                        }
+                    }
+
+                    // Fetch Latest Data from Cloud JSONBin
+                    await this.fetchFromCloud(true);
+                },
+
+                // VERIFY PIN AUTHENTICATION
+                verifyPin() {
+                    const validPin = this.data.pin || '1234';
+                    if (this.pinAttempt === validPin) {
+                        this.authenticated = true;
+                        this.pinError = false;
+                        this.pinAttempt = '';
+                        sessionStorage.setItem('admin_authenticated', 'true');
+                        this.showToast('Selamat Datang! Akses Admin Berhasil Diberikan.', 'success');
+                    } else {
+                        this.pinError = true;
+                        this.pinAttempt = '';
+                        setTimeout(() => this.pinError = false, 3000);
+                    }
+                },
+
+                // LOGOUT / LOCK
+                logout() {
+                    this.authenticated = false;
+                    sessionStorage.removeItem('admin_authenticated');
+                    this.showToast('Panel Admin Berhasil Dikunci.', 'info');
+                },
+
+                // FETCH DATA FROM JSONBIN CLOUD
+                async fetchFromCloud(silent = false) {
+                    this.syncing = true;
+                    try {
+                        const response = await fetch(`https://api.jsonbin.io/v3/b/${this.jsonbinBinId}/latest`, {
+                            method: 'GET',
+                            headers: {
+                                'X-Master-Key': this.jsonbinMasterKey
+                            }
+                        });
+
+                        if (response.ok) {
+                            const json = await response.json();
+                            if (json && json.record) {
+                                this.data = { ...this.data, ...json.record };
+                                localStorage.setItem('biodata_profile_data', JSON.stringify(this.data));
+                                if (!silent) {
+                                    this.showToast('Data terbaru berhasil diunduh dari Cloud!', 'success');
+                                }
+                            }
+                        } else {
+                            if (!silent) throw new Error('Gagal mengambil data dari JSONBin');
+                        }
+                    } catch (err) {
+                        console.error('Fetch Cloud Error:', err);
+                        if (!silent) {
+                            this.showToast('Gagal Sync Cloud: ' + err.message, 'error');
+                        }
+                    } finally {
+                        this.syncing = false;
+                    }
+                },
+
+                // SAVE ALL DATA TO LOCAL STORAGE & JSONBIN CLOUD
+                async saveAllData() {
+                    this.syncing = true;
+                    try {
+                        // 1. Save locally
+                        localStorage.setItem('biodata_profile_data', JSON.stringify(this.data));
+
+                        // 2. Put to JSONBin Cloud
+                        const response = await fetch(`https://api.jsonbin.io/v3/b/${this.jsonbinBinId}`, {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-Master-Key': this.jsonbinMasterKey
+                            },
+                            body: JSON.stringify(this.data)
+                        });
+
+                        if (response.ok) {
+                            this.showToast('Semua perubahan data berhasil disimpan ke Cloud & Publik!', 'success');
+                        } else {
+                            throw new Error('Gagal memperbarui data di Cloud.');
+                        }
+                    } catch (err) {
+                        this.showToast('Gagal Simpan Cloud: ' + err.message, 'error');
+                    } finally {
+                        this.syncing = false;
+                    }
+                },
+
+                // UPLOAD IMAGE TO GITHUB REST API
+                async uploadToGitHub(event) {
+                    const file = event.target.files[0];
+                    if (!file) return;
+
+                    if (file.size > 5 * 1024 * 1024) {
+                        this.showToast('Ukuran foto maksimal 5MB!', 'error');
+                        return;
+                    }
+
+                    this.uploading = true;
+
+                    try {
+                        // Convert file to Base64
+                        const base64Content = await new Promise((resolve, reject) => {
+                            const reader = new FileReader();
+                            reader.onload = () => {
+                                const base64 = reader.result.split(',')[1];
+                                resolve(base64);
+                            };
+                            reader.onerror = err => reject(err);
+                            reader.readAsDataURL(file);
+                        });
+
+                        // Generate unique upload filename
+                        const ext = file.name.split('.').pop() || 'jpg';
+                        const fileName = `foto_${Date.now()}.${ext}`;
+                        const filePath = `uploads/${fileName}`;
+
+                        const githubUrl = `https://api.github.com/repos/${this.githubRepo}/contents/${filePath}`;
+
+                        const response = await fetch(githubUrl, {
+                            method: 'PUT',
+                            headers: {
+                                'Authorization': `Bearer ${this.githubToken}`,
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/vnd.github+json'
+                            },
+                            body: JSON.stringify({
+                                message: `Upload photo ${fileName} via Admin Panel`,
+                                content: base64Content,
+                                branch: this.githubBranch
+                            })
+                        });
+
+                        if (response.ok || response.status === 201) {
+                            // Construct GitHub Raw URL
+                            const rawUrl = `https://raw.githubusercontent.com/${this.githubRepo}/${this.githubBranch}/${filePath}`;
+                            
+                            this.data.foto_url = rawUrl;
+                            this.imageLoadError = false;
+
+                            // Automatically save data
+                            await this.saveAllData();
+                            this.showToast('Foto berhasil diunggah ke GitHub & URL disinkronkan!', 'success');
+                        } else {
+                            const errJson = await response.json();
+                            throw new Error(errJson.message || 'Gagal terhubung ke GitHub API.');
+                        }
+                    } catch (err) {
+                        console.error('GitHub Upload Error:', err);
+                        this.showToast('Upload Foto Gagal: ' + err.message, 'error');
+                    } finally {
+                        this.uploading = false;
+                    }
+                },
+
+                // CHANGE ADMIN PIN
+                async saveNewPin() {
+                    if (!this.newPinInput || this.newPinInput.trim().length < 4) {
+                        this.showToast('PIN baru minimal harus 4 karakter!', 'error');
+                        return;
+                    }
+
+                    this.data.pin = this.newPinInput.trim();
+                    this.openPinModal = false;
+                    this.newPinInput = '';
+
+                    await this.saveAllData();
+                    this.showToast('PIN Keamanan Admin Berhasil Diperbarui!', 'success');
+                },
+
+                // RESET DATA TO DEFAULTS
+                async resetDefaults() {
+                    if (confirm('Apakah Anda yakin ingin mengembalikan data ke setelan awal default?')) {
+                        this.data = {
+                            pin: '1234',
+                            nama: 'Rezky putri aulia',
+                            nim: '202601001',
+                            nik: '7305015305070001',
+                            ttl: 'Takalar, 03 Mei 2007',
+                            jenis_kelamin: 'Perempuan',
+                            agama: 'Islam',
+                            alamat: 'Takalar, Sulawesi Selatan',
+                            prodi: 'D3 Rekam Medis dan Informasi Kesehatan',
+                            fakultas: 'STIKES Panakkukang Makassar',
+                            angkatan: '2026',
+                            no_hp: '081234567890',
+                            email: 'rezkyputri@example.com',
+                            foto_url: 'https://raw.githubusercontent.com/TandiLayuk/Ekki/main/uploads/profile.jpg',
+                            nama_ayah: 'Syamsuddin',
+                            nama_ibu: 'Ibu Rezky',
+                            motto: 'Terus belajar, mengabdi untuk kesehatan masyarakat, dan meraih cita-cita.',
+                            gh_token: 'ghp_d6v62KR1NyXZ06h9GFH2F2M2BMgObs247k8D',
+                            gh_repo: 'TandiLayuk/Ekki'
+                        };
+                        this.imageLoadError = false;
+                        await this.saveAllData();
+                        this.showToast('Data berhasil dikembalikan ke standar awal.', 'info');
+                    }
+                },
+
+                // EXPORT BACKUP JSON FILE
+                exportBackupJSON() {
+                    const jsonStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(this.data, null, 2));
+                    const dl = document.createElement('a');
+                    dl.setAttribute("href", jsonStr);
+                    dl.setAttribute("download", `Backup_Biodata_${this.data.nim}_${Date.now()}.json`);
+                    document.body.appendChild(dl);
+                    dl.click();
+                    dl.remove();
+                    this.showToast('File backup JSON berhasil diunduh.', 'success');
+                },
+
+                // TOAST DISPLAY HELPER
+                showToast(msg, type = 'success') {
+                    this.toast.message = msg;
+                    this.toast.type = type;
+                    this.toast.show = true;
+
+                    setTimeout(() => {
+                        this.toast.show = false;
+                    }, 3500);
+                }
+            }
+        }
+    </script>
+</body>
+</html>
