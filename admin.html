@@ -26,56 +26,70 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        .bg-pattern {
+        body {
             background-color: #f8fafc;
             background-image: radial-gradient(#059669 0.5px, transparent 0.5px), radial-gradient(#059669 0.5px, #f8fafc 0.5px);
             background-size: 28px 28px;
             background-position: 0 0, 14px 14px;
         }
+        /* Penyesuaian kustom untuk tombol input file agar lebih rapi di HP */
+        input[type=file]::file-selector-button {
+            margin-right: 12px;
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: none;
+            background-color: #ecfdf5;
+            color: #047857;
+            font-weight: 700;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        input[type=file]::file-selector-button:hover {
+            background-color: #d1fae5;
+        }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800 font-sans min-h-full antialiased flex flex-col justify-between bg-pattern">
+<body class="text-slate-800 font-sans min-h-full antialiased flex flex-col justify-between">
 
     <!-- Header Navigation Bar -->
     <header class="bg-slate-900 text-white sticky top-0 z-40 shadow-lg border-b border-slate-800">
         <div class="max-w-5xl mx-auto px-4 py-3 sm:py-4 flex justify-between items-center">
             <div class="flex items-center space-x-3">
-                <div class="w-10 h-10 bg-gradient-to-tr from-emerald-600 to-teal-400 text-white rounded-2xl flex items-center justify-center font-bold shadow-md">
+                <div class="w-10 h-10 bg-gradient-to-tr from-emerald-600 to-teal-400 text-white rounded-2xl flex items-center justify-center font-bold shadow-md shrink-0">
                     <i class="fa-solid fa-user-gear"></i>
                 </div>
-                <div>
-                    <h1 class="font-bold text-sm sm:text-base leading-tight">Portal Manajemen Admin</h1>
-                    <p class="text-[10px] sm:text-xs text-emerald-400 font-medium">Sinkronisasi Cloud Real-Time</p>
+                <div class="truncate">
+                    <h1 class="font-bold text-sm sm:text-base leading-tight truncate">Manajemen Admin</h1>
+                    <p class="text-[10px] sm:text-xs text-emerald-400 font-medium truncate">Sinkronisasi Cloud Aktif</p>
                 </div>
             </div>
 
-            <div class="flex items-center gap-2">
-                <a href="index.html" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-3.5 py-2 rounded-xl text-xs font-semibold transition border border-slate-700 flex items-center gap-1.5">
-                    <i class="fa-solid fa-arrow-left"></i>
-                    <span>Kembali ke Portal</span>
-                </a>
-            </div>
+            <a href="index.html" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-2 rounded-xl text-xs font-semibold transition border border-slate-700 flex items-center gap-1.5 shrink-0">
+                <i class="fa-solid fa-arrow-left"></i>
+                <span class="hidden sm:inline">Kembali</span>
+            </a>
         </div>
     </header>
 
     <!-- Main Container -->
-    <main class="max-w-5xl mx-auto p-4 sm:p-6 w-full flex-grow space-y-6 my-4">
+    <main class="max-w-3xl mx-auto px-4 py-6 w-full flex-grow space-y-6">
 
         <!-- Toast Notification Banner -->
         <div id="toast-banner" class="hidden p-4 rounded-2xl text-xs sm:text-sm font-bold border flex items-center gap-2 shadow-lg transition"></div>
 
         <!-- ==================== AUTHENTICATION SCREEN ==================== -->
-        <div id="admin-auth" class="bg-white rounded-3xl p-6 sm:p-10 shadow-2xl border border-slate-200 max-w-md mx-auto text-center space-y-6 my-12">
+        <div id="admin-auth" class="bg-white rounded-3xl p-6 sm:p-10 shadow-2xl border border-slate-200 max-w-sm mx-auto text-center space-y-6 my-10">
             <div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center mx-auto text-2xl shadow-inner">
                 <i class="fa-solid fa-lock"></i>
             </div>
             <div>
-                <h3 class="font-extrabold text-xl text-slate-900">Akses Panel Admin</h3>
-                <p class="text-xs text-slate-500 mt-1">Masukkan PIN untuk mengelola data & foto profil</p>
+                <h3 class="font-extrabold text-xl text-slate-900">Akses Admin</h3>
+                <p class="text-xs text-slate-500 mt-1">Masukkan PIN untuk mengelola data</p>
             </div>
             <input type="password" id="admin-pin-input" class="w-full text-center text-3xl font-mono tracking-widest px-4 py-3.5 border-2 border-slate-200 rounded-2xl focus:border-emerald-500 outline-none shadow-sm" placeholder="****" maxlength="8">
-            <button onclick="unlockAdmin()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold py-3.5 rounded-2xl text-xs sm:text-sm transition shadow-lg shadow-emerald-600/25">
-                Buka Panel Admin
+            <button onclick="unlockAdmin()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold py-3.5 rounded-2xl text-sm transition shadow-lg shadow-emerald-600/25">
+                Buka Panel
             </button>
             <p id="auth-err" class="text-rose-500 text-xs hidden font-bold">PIN Salah! Default PIN: 1234</p>
         </div>
@@ -84,45 +98,47 @@
         <div id="admin-panel" class="hidden space-y-6">
             
             <!-- Status Bar -->
-            <div class="bg-slate-900 text-white p-4 sm:p-5 rounded-3xl flex flex-col sm:flex-row justify-between items-center gap-3 text-xs shadow-xl border border-slate-800">
-                <span class="font-bold text-emerald-400 flex items-center gap-2">
-                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span>
-                    Sesi Admin Terverifikasi & Aktif
-                </span>
-                <button onclick="lockAdmin()" class="bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/30 px-4 py-2 rounded-xl font-bold transition flex items-center gap-1.5">
-                    <i class="fa-solid fa-lock"></i> Kunci Panel Admin
+            <div class="bg-slate-900 text-white p-4 rounded-3xl flex flex-row justify-between items-center gap-3 text-xs shadow-xl border border-slate-800">
+                <div class="flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping shrink-0"></span>
+                    <span class="font-bold text-emerald-400">Mode Edit Aktif</span>
+                </div>
+                <button onclick="lockAdmin()" class="bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/30 px-3 py-1.5 rounded-xl font-bold transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-lock text-[10px]"></i> Kunci
                 </button>
             </div>
 
             <!-- Foto Profil & Compression -->
-            <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-xl border border-slate-200 space-y-5">
-                <h3 class="font-extrabold text-sm sm:text-base text-slate-900 flex items-center gap-2 border-b pb-3">
-                    <i class="fa-solid fa-camera text-emerald-600"></i> Pengaturan Foto Profil (Kompresi Otomatis)
+            <div class="bg-white p-5 sm:p-8 rounded-3xl shadow-xl border border-slate-200 space-y-5">
+                <h3 class="font-extrabold text-sm text-slate-900 flex items-center gap-2 border-b pb-3">
+                    <i class="fa-solid fa-camera text-emerald-600"></i> Ganti Foto Profil
                 </h3>
                 
-                <div class="flex flex-col sm:flex-row items-center gap-6">
-                    <div class="w-32 h-40 sm:w-36 sm:h-44 rounded-2xl overflow-hidden bg-slate-100 border-2 border-emerald-500/40 shadow-lg shrink-0">
-                        <img id="admin-img-preview" src="uploads/profile.jpg" onerror="this.src='https://placehold.co/300x400/059669/ffffff?text=Foto+Profil'" class="w-full h-full object-cover">
+                <div class="flex flex-col items-center sm:flex-row sm:items-start gap-6">
+                    <!-- Preview Foto Diperbaiki Proporsinya -->
+                    <div class="w-32 h-32 sm:w-36 sm:h-36 rounded-full overflow-hidden bg-slate-100 border-4 border-emerald-500/40 shadow-lg shrink-0 flex items-center justify-center relative">
+                        <img id="admin-img-preview" src="uploads/profile.jpg" onerror="this.src='https://placehold.co/300x300/059669/ffffff?text=Foto'" class="w-full h-full object-cover">
                     </div>
                     
-                    <div class="space-y-4 w-full">
-                        <div>
-                            <label class="block text-xs font-extrabold text-slate-700 mb-1.5">Pilih Foto Baru dari Perangkat (HP / Laptop):</label>
-                            <input type="file" id="file-hp-input" accept="image/*" onchange="processMobilePhoto(event)" class="block w-full text-xs text-slate-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100 border rounded-xl cursor-pointer">
-                            <p class="text-[11px] text-slate-400 mt-1.5">*Gambar otomatis dikompresi agar sukses tersimpan ke Cloud JSONBin dari perangkat apa pun.</p>
+                    <div class="space-y-4 w-full text-center sm:text-left">
+                        <div class="bg-slate-50 p-3 rounded-2xl border border-slate-200">
+                            <label class="block text-xs font-extrabold text-slate-700 mb-2">Pilih Foto dari Galeri / Kamera:</label>
+                            <input type="file" id="file-hp-input" accept="image/*" onchange="processMobilePhoto(event)" class="block w-full text-xs text-slate-600 cursor-pointer">
                         </div>
-                        <div>
-                            <label class="block text-xs font-extrabold text-slate-700 mb-1.5">Atau URL / Path Gambar Langsung:</label>
-                            <input type="text" id="f-foto_url" oninput="updatePreviewFromInput(this.value)" class="w-full px-3.5 py-2.5 text-xs font-mono border rounded-xl outline-none focus:border-emerald-500 bg-slate-50" placeholder="uploads/profile.jpg atau https://...">
-                        </div>
+                        <p class="text-[10px] text-slate-400 font-medium px-2 leading-relaxed">
+                            <i class="fa-solid fa-circle-info text-emerald-500 mr-1"></i> Foto otomatis dikompresi agar sukses tersimpan ke Cloud JSONBin tanpa macet.
+                        </p>
+                        
+                        <!-- Input URL Disembunyikan (Bisa ditampilkan jika diperlukan) -->
+                        <input type="hidden" id="f-foto_url">
                     </div>
                 </div>
             </div>
 
             <!-- Form Biodata Lengkap -->
-            <form onsubmit="saveToCloud(event)" class="bg-white p-6 sm:p-8 rounded-3xl shadow-xl border border-slate-200 space-y-6">
-                <h3 class="font-extrabold text-sm sm:text-base text-slate-900 flex items-center gap-2 border-b pb-3">
-                    <i class="fa-solid fa-user-pen text-emerald-600"></i> Form Edit Data Biodata & Akademik
+            <form onsubmit="saveToCloud(event)" class="bg-white p-5 sm:p-8 rounded-3xl shadow-xl border border-slate-200 space-y-5">
+                <h3 class="font-extrabold text-sm text-slate-900 flex items-center gap-2 border-b pb-3">
+                    <i class="fa-solid fa-user-pen text-emerald-600"></i> Form Edit Biodata
                 </h3>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
@@ -131,11 +147,11 @@
                         <input type="text" id="f-nama" required class="w-full px-3.5 py-3 border rounded-xl outline-none focus:border-emerald-500 bg-slate-50">
                     </div>
                     <div>
-                        <label class="block font-bold text-slate-700 mb-1">NIM / Nomor Induk Mahasiswa</label>
+                        <label class="block font-bold text-slate-700 mb-1">NIM</label>
                         <input type="text" id="f-nim" required class="w-full px-3.5 py-3 border rounded-xl outline-none focus:border-emerald-500 bg-slate-50">
                     </div>
                     <div>
-                        <label class="block font-bold text-slate-700 mb-1">NIK (16 Digit)</label>
+                        <label class="block font-bold text-slate-700 mb-1">NIK</label>
                         <input type="text" id="f-nik" class="w-full px-3.5 py-3 border rounded-xl outline-none focus:border-emerald-500 bg-slate-50">
                     </div>
                     <div>
@@ -158,7 +174,7 @@
                         <input type="text" id="f-prodi" class="w-full px-3.5 py-3 border rounded-xl outline-none focus:border-emerald-500 bg-slate-50">
                     </div>
                     <div>
-                        <label class="block font-bold text-slate-700 mb-1">Fakultas / Perguruan Tinggi</label>
+                        <label class="block font-bold text-slate-700 mb-1">Fakultas / Kampus</label>
                         <input type="text" id="f-fakultas" class="w-full px-3.5 py-3 border rounded-xl outline-none focus:border-emerald-500 bg-slate-50">
                     </div>
                     <div>
@@ -182,17 +198,17 @@
                         <input type="text" id="f-nama_ibu" class="w-full px-3.5 py-3 border rounded-xl outline-none focus:border-emerald-500 bg-slate-50">
                     </div>
                     <div>
-                        <label class="block font-bold text-slate-700 mb-1">Alamat Domisili</label>
+                        <label class="block font-bold text-slate-700 mb-1">Alamat</label>
                         <input type="text" id="f-alamat" class="w-full px-3.5 py-3 border rounded-xl outline-none focus:border-emerald-500 bg-slate-50">
                     </div>
                     <div class="sm:col-span-2">
-                        <label class="block font-bold text-slate-700 mb-1">Motto / Kata Mutiara</label>
+                        <label class="block font-bold text-slate-700 mb-1">Motto</label>
                         <textarea id="f-motto" rows="3" class="w-full px-3.5 py-3 border rounded-xl outline-none focus:border-emerald-500 bg-slate-50"></textarea>
                     </div>
                 </div>
 
-                <div class="pt-4 border-t flex justify-end">
-                    <button type="submit" id="btn-cloud-save" class="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold px-8 py-3.5 rounded-2xl text-xs sm:text-sm flex items-center justify-center gap-2 transition shadow-xl shadow-emerald-600/25">
+                <div class="pt-5 border-t border-slate-100 flex justify-end">
+                    <button type="submit" id="btn-cloud-save" class="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold px-6 py-3.5 rounded-2xl text-sm flex items-center justify-center gap-2 transition shadow-xl shadow-emerald-600/25">
                         <i class="fa-solid fa-cloud-arrow-up"></i>
                         <span>Simpan & Sync ke Cloud</span>
                     </button>
@@ -202,8 +218,8 @@
     </main>
 
     <!-- Footer -->
-    <footer class="bg-white border-t border-slate-200 py-6 text-center text-xs text-slate-400 mt-12">
-        <p class="font-bold text-slate-600">Rezky Putri Aulia &copy; 2026 • Panel Admin Portal</p>
+    <footer class="bg-white border-t border-slate-200 py-6 text-center text-[10px] text-slate-400 mt-6">
+        <p class="font-bold text-slate-600">Rezky Putri Aulia &copy; 2026 • Panel Admin</p>
     </footer>
 
     <!-- Script Logika Cloud Sync & Image Compression -->
@@ -228,13 +244,14 @@
         }
 
         function populateAdminForm(data) {
-            const fields = ['nama', 'nim', 'nik', 'ttl', 'jenis_kelamin', 'agama', 'prodi', 'fakultas', 'angkatan', 'no_hp', 'email', 'nama_ayah', 'nama_ibu', 'alamat', 'motto', 'foto_url'];
+            const fields = ['nama', 'nim', 'nik', 'ttl', 'jenis_kelamin', 'agama', 'prodi', 'fakultas', 'angkatan', 'no_hp', 'email', 'nama_ayah', 'nama_ibu', 'alamat', 'motto'];
             fields.forEach(f => {
                 const input = document.getElementById(`f-${f}`);
                 if (input && data[f] !== undefined) input.value = data[f];
             });
             if (data.foto_url) {
                 document.getElementById('admin-img-preview').src = data.foto_url;
+                document.getElementById('f-foto_url').value = data.foto_url;
             }
         }
 
@@ -261,47 +278,48 @@
             const file = e.target.files[0];
             if (!file) return;
 
-            showToast('Mengompresi foto perangkat...', 'info');
+            showToast('Memproses foto...', 'info');
 
             const reader = new FileReader();
             reader.onload = function(event) {
                 const img = new Image();
                 img.onload = function() {
                     const canvas = document.createElement('canvas');
-                    const MAX_W = 400, MAX_H = 500;
-                    let width = img.width, height = img.height;
-
-                    if (width > height) {
-                        if (width > MAX_W) { height *= MAX_W / width; width = MAX_W; }
-                    } else {
-                        if (height > MAX_H) { width *= MAX_H / height; height = MAX_H; }
+                    // Buat ukuran kotak (square) agar pas dengan bingkai bulat di HP
+                    const size = Math.min(img.width, img.height);
+                    const MAX_SIZE = 400; // Kompres ukuran maksimal 400x400px
+                    
+                    let finalSize = size;
+                    if (finalSize > MAX_SIZE) {
+                        finalSize = MAX_SIZE;
                     }
 
-                    canvas.width = width;
-                    canvas.height = height;
+                    canvas.width = finalSize;
+                    canvas.height = finalSize;
                     const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0, width, height);
+                    
+                    // Crop gambar ke tengah (center crop)
+                    const offsetX = (img.width - size) / 2;
+                    const offsetY = (img.height - size) / 2;
+                    
+                    ctx.drawImage(img, offsetX, offsetY, size, size, 0, 0, finalSize, finalSize);
 
-                    const compressedBase64 = canvas.toDataURL('image/jpeg', 0.75);
+                    const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
                     document.getElementById('admin-img-preview').src = compressedBase64;
                     document.getElementById('f-foto_url').value = compressedBase64;
 
-                    showToast('Foto berhasil dimuat & dikompresi!', 'success');
+                    showToast('Foto berhasil dimuat!', 'success');
                 };
                 img.src = event.target.result;
             };
             reader.readAsDataURL(file);
         }
 
-        function updatePreviewFromInput(val) {
-            if (val) document.getElementById('admin-img-preview').src = val;
-        }
-
         async function saveToCloud(e) {
             e.preventDefault();
             const btn = document.getElementById('btn-cloud-save');
             btn.disabled = true;
-            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> <span>Menyimpan ke Cloud...</span>`;
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> <span>Menyimpan...</span>`;
 
             const payload = {
                 pin: appData.pin || "1234",
@@ -316,7 +334,7 @@
                 angkatan: document.getElementById('f-angkatan').value,
                 no_hp: document.getElementById('f-no_hp').value,
                 email: document.getElementById('f-email').value,
-                foto_url: document.getElementById('f-foto_url').value || document.getElementById('admin-img-preview').src,
+                foto_url: document.getElementById('f-foto_url').value,
                 nama_ayah: document.getElementById('f-nama_ayah').value,
                 nama_ibu: document.getElementById('f-nama_ibu').value,
                 alamat: document.getElementById('f-alamat').value,
@@ -335,12 +353,12 @@
 
                 if (res.ok) {
                     appData = payload;
-                    showToast('Data & Foto profil berhasil disimpan & disinkronkan ke Cloud!', 'success');
+                    showToast('Berhasil disimpan ke Cloud!', 'success');
                 } else {
-                    showToast('Gagal memperbarui ke Cloud JSONBin.', 'error');
+                    showToast('Gagal terhubung ke Cloud.', 'error');
                 }
             } catch (err) {
-                showToast('Kesalahan koneksi internet.', 'error');
+                showToast('Koneksi bermasalah.', 'error');
             }
 
             btn.disabled = false;
@@ -349,14 +367,17 @@
 
         function showToast(msg, type) {
             const toast = document.getElementById('toast-banner');
-            toast.innerText = msg;
-            toast.className = 'p-4 rounded-2xl text-xs sm:text-sm font-bold border flex items-center gap-2 shadow-lg ';
-            if (type === 'success') toast.className += 'bg-emerald-50 text-emerald-800 border-emerald-200';
-            else if (type === 'error') toast.className += 'bg-rose-50 text-rose-800 border-rose-200';
+            toast.innerHTML = type === 'success' ? `<i class="fa-solid fa-check-circle"></i> ${msg}` :
+                              type === 'error' ? `<i class="fa-solid fa-triangle-exclamation"></i> ${msg}` :
+                              `<i class="fa-solid fa-info-circle"></i> ${msg}`;
+                              
+            toast.className = 'fixed bottom-5 right-5 left-5 sm:left-auto p-4 rounded-2xl text-xs sm:text-sm font-bold border shadow-2xl z-50 transition ';
+            if (type === 'success') toast.className += 'bg-emerald-600 text-white border-emerald-500';
+            else if (type === 'error') toast.className += 'bg-rose-600 text-white border-rose-500';
             else toast.className += 'bg-slate-800 text-white border-slate-700';
 
             toast.classList.remove('hidden');
-            setTimeout(() => toast.classList.add('hidden'), 4000);
+            setTimeout(() => toast.classList.add('hidden'), 3500);
         }
 
         window.onload = loadCloudData;
