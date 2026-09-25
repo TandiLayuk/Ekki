@@ -83,48 +83,48 @@
 
 <body x-data="portalApp()" x-init="initApp()" :class="{ 'dark bg-slate-950 text-slate-100': darkMode, 'bg-slate-50 text-slate-800 bg-pattern': !darkMode }" class="min-h-full font-sans antialiased transition-colors duration-300">
 
-    <!-- HEADER NAVIGATION BAR -->
+    <!-- HEADER NAVIGATION BAR - Diperbaiki agar tidak menumpuk di HP -->
     <header class="sticky top-0 z-40 w-full backdrop-blur-md bg-white/80 dark:bg-slate-900/80 border-b border-emerald-100 dark:border-emerald-900/40 shadow-sm no-print">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between h-16 sm:h-20">
+        <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16 sm:h-20 gap-2">
                 
                 <!-- Branding Header -->
-                <div class="flex items-center space-x-3 cursor-pointer" @click="activeTab = 'public'">
-                    <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-tr from-emerald-600 via-emerald-500 to-teal-400 flex items-center justify-center text-white shadow-lg shadow-emerald-600/30">
-                        <i class="fa-solid fa-user-shield text-lg sm:text-xl"></i>
+                <div class="flex items-center space-x-2.5 cursor-pointer min-w-0" @click="activeTab = 'public'">
+                    <div class="w-9 h-9 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-tr from-emerald-600 via-emerald-500 to-teal-400 flex items-center justify-center text-white shadow-lg shadow-emerald-600/30 shrink-0">
+                        <i class="fa-solid fa-user-shield text-base sm:text-xl"></i>
                     </div>
-                    <div>
-                        <div class="flex items-center gap-2">
-                            <h1 class="text-sm sm:text-base font-extrabold text-slate-900 dark:text-white tracking-tight">Portal Profil Personal</h1>
-                            <span class="px-2 py-0.5 text-[9px] font-black uppercase tracking-wider bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 rounded-md border border-emerald-300/40">Secure</span>
+                    <div class="min-w-0">
+                        <div class="flex items-center gap-1.5">
+                            <h1 class="text-xs sm:text-base font-extrabold text-slate-900 dark:text-white tracking-tight truncate">Portal Profil</h1>
+                            <span class="px-1.5 py-0.5 text-[8px] sm:text-[9px] font-black uppercase tracking-wider bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 rounded-md border border-emerald-300/40 shrink-0">Secure</span>
                         </div>
-                        <p class="text-xs text-emerald-600 dark:text-emerald-400 font-semibold truncate max-w-[150px] sm:max-w-none" x-text="data.nama || 'Rezky Putri Aulia'"></p>
+                        <p class="text-[10px] sm:text-xs text-emerald-600 dark:text-emerald-400 font-semibold truncate" x-text="data.nama || 'Rezky Putri Aulia'"></p>
                     </div>
                 </div>
 
                 <!-- Navigation & Actions -->
-                <div class="flex items-center space-x-2 sm:space-x-3">
+                <div class="flex items-center space-x-1.5 sm:space-x-3 shrink-0">
                     <div class="bg-slate-100 dark:bg-slate-800/90 p-1 rounded-2xl border border-slate-200 dark:border-slate-700/60 flex items-center">
-                        <button @click="activeTab = 'public'" :class="{ 'bg-white dark:bg-slate-900 text-emerald-700 dark:text-emerald-400 shadow-sm font-bold': activeTab === 'public', 'text-slate-600 dark:text-slate-400 font-medium': activeTab !== 'public' }" class="px-3 py-1.5 rounded-xl text-xs transition flex items-center gap-1.5">
+                        <button @click="activeTab = 'public'" :class="{ 'bg-white dark:bg-slate-900 text-emerald-700 dark:text-emerald-400 shadow-sm font-bold': activeTab === 'public', 'text-slate-600 dark:text-slate-400 font-medium': activeTab !== 'public' }" class="px-2.5 sm:px-3 py-1.5 rounded-xl text-xs transition flex items-center gap-1">
                             <i class="fa-solid fa-id-card"></i>
                             <span class="hidden sm:inline">Profil</span>
                         </button>
-                        <button @click="activeTab = 'admin'" :class="{ 'bg-emerald-600 text-white shadow-md font-bold': activeTab === 'admin', 'text-slate-600 dark:text-slate-400 font-medium': activeTab !== 'admin' }" class="px-3 py-1.5 rounded-xl text-xs transition flex items-center gap-1.5">
+                        <button @click="activeTab = 'admin'" :class="{ 'bg-emerald-600 text-white shadow-md font-bold': activeTab === 'admin', 'text-slate-600 dark:text-slate-400 font-medium': activeTab !== 'admin' }" class="px-2.5 sm:px-3 py-1.5 rounded-xl text-xs transition flex items-center gap-1">
                             <i class="fa-solid fa-sliders"></i>
                             <span class="hidden sm:inline">Admin</span>
                         </button>
                     </div>
 
                     <!-- Cloud Sync Button -->
-                    <button @click="fetchCloudData()" :disabled="syncing" class="px-2.5 py-1.5 sm:px-3 sm:py-2 text-xs font-bold bg-emerald-50 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 hover:bg-emerald-100 rounded-xl transition flex items-center gap-1.5 border border-emerald-200 dark:border-emerald-800/50" title="Sinkronisasi Cloud">
-                        <span class="w-2 h-2 rounded-full" :class="syncing ? 'bg-amber-500 animate-ping' : 'bg-emerald-500'"></span>
-                        <span class="hidden md:inline" x-text="syncing ? 'Sync...' : 'Cloud Sync'"></span>
+                    <button @click="fetchCloudData()" :disabled="syncing" class="px-2 py-1.5 sm:px-3 sm:py-2 text-xs font-bold bg-emerald-50 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 hover:bg-emerald-100 rounded-xl transition flex items-center gap-1 border border-emerald-200 dark:border-emerald-800/50" title="Sinkronisasi Cloud">
+                        <span class="w-2 h-2 rounded-full shrink-0" :class="syncing ? 'bg-amber-500 animate-ping' : 'bg-emerald-500'"></span>
+                        <span class="hidden md:inline" x-text="syncing ? 'Sync...' : 'Sync'"></span>
                         <i class="fa-solid fa-rotate text-[11px]" :class="{ 'animate-spin': syncing }"></i>
                     </button>
 
                     <!-- Dark Mode Toggle -->
-                    <button @click="darkMode = !darkMode" class="p-2.5 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition border border-transparent dark:border-slate-700">
-                        <i class="fa-solid" :class="darkMode ? 'fa-sun text-amber-400' : 'fa-moon text-slate-600'"></i>
+                    <button @click="darkMode = !darkMode" class="p-2 sm:p-2.5 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition border border-transparent dark:border-slate-700">
+                        <i class="fa-solid text-xs sm:text-sm" :class="darkMode ? 'fa-sun text-amber-400' : 'fa-moon text-slate-600'"></i>
                     </button>
                 </div>
             </div>
